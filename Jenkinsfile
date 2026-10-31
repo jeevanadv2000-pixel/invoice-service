@@ -58,5 +58,36 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                withCredentials([
-   
+                sh '''
+                curl --fail \
+                -u jenkins:JenkinsTomcat123! \
+                --upload-file target/invoice-service.war \
+                "http://localhost:9090/manager/text/deploy?path=/invoice-service&update=true"
+                '''
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh '''
+                curl --fail http://localhost:9090/invoice-service/
+                '''
+            }
+        }
+    }
+
+    post {
+
+        success {
+            echo "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+        }
+
+        failure {
+            echo "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+        }
+
+        fixed {
+            echo "FIXED: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+        }
+    }
+}
