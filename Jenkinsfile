@@ -13,11 +13,19 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
 
+    parameters {
+        string(
+            name: 'RELEASE_NOTES',
+            defaultValue: 'Initial Release',
+            description: 'Release Notes'
+        )
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
-                echo "Building ${APP_NAME}"
+                echo "Application: ${APP_NAME}"
                 checkout scm
             }
         }
@@ -46,6 +54,7 @@ pipeline {
             }
 
             steps {
+                echo "Release Notes: ${params.RELEASE_NOTES}"
                 sh 'mvn package'
             }
         }
@@ -53,10 +62,11 @@ pipeline {
 
     post {
         success {
-            echo 'Build successful'
+            echo 'Pipeline completed successfully'
         }
+
         failure {
-            echo 'Build failed'
+            echo 'Pipeline failed'
         }
     }
 }
