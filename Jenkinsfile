@@ -11,6 +11,7 @@ pipeline {
 
     options {
         timeout(time: 15, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
     parameters {
@@ -58,38 +59,4 @@ pipeline {
         stage('Deploy') {
             steps {
                 withCredentials([
-                    usernamePassword(
-                        credentialsId: 'tomcat-creds',
-                        usernameVariable: 'USER',
-                        passwordVariable: 'PASS'
-                    )
-                ]) {
-                    sh '''
-                    curl --fail \
-                    -u $USER:$PASS \
-                    --upload-file target/invoice-service.war \
-                    "http://localhost:9090/manager/text/deploy?path=/invoice-service&update=true"
-                    '''
-                }
-            }
-        }
-
-        stage('Verify') {
-            steps {
-                sh '''
-                curl --fail http://localhost:9090/invoice-service/
-                '''
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline completed successfully'
-        }
-
-        failure {
-            echo 'Pipeline failed'
-        }
-    }
-}
+   
